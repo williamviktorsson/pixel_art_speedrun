@@ -169,12 +169,22 @@ h-screen"
     <div id="grid" class="grid" style="--width: {width}; --height: {height};">
       {#each data.art.pixels as pixel}
         <form
-          use:enhance
+          use:enhance={({ cancel }) => {
+            if (pixel.color === color) {
+              cancel();
+            }
+            pixel.color = color;
+          }}
           action="?/edit"
           method="post"
           on:mouseenter={(e) => {
             // check if mouse is down
-            if (e.buttons !== 1) return;
+            if (e.buttons !== 1) {
+              return;
+            }
+            if (pixel.color === color) {
+              return;
+            }
             // submit this form
             e.target?.dispatchEvent(new Event("submit"));
           }}
