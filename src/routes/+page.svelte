@@ -11,10 +11,10 @@
   <input id="name" type="text" name="name" required />
 
   <label for="width">Width:</label>
-  <input id="width" type="number" name="width" required />
+  <input id="width" type="number" name="width" max=64 required />
 
   <label for="height">Height:</label>
-  <input id="height" type="number" name="height" required />
+  <input id="height" type="number" name="height" max="64" required />
 
   <label for="createdBy">Created By:</label>
   <input id="createdBy" type="text" name="createdBy" required />
