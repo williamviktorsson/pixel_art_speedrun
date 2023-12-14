@@ -174,6 +174,10 @@ h-screen"
               cancel();
             }
             pixel.color = color;
+            return ({ result, update }) => {
+              // do nothing to prevent each form submit to trigger invalidateAll.
+              // invalidateAll is triggered manually on interval
+            };
           }}
           action="?/edit"
           method="post"
@@ -196,8 +200,6 @@ h-screen"
           {#if "id" in pixel}
             <input type="hidden" name="id" bind:value={pixel.id} />
           {/if}
-
-          <!-- show pixel.placedBy on hover -->
 
           <button class="pixel" style="background-color: {pixel.color}"
           ></button>
