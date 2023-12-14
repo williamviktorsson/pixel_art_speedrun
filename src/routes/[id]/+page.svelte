@@ -12,6 +12,8 @@
   $: name = data.art.name;
   $: createdBy = data.art.createdBy;
 
+  let forms: Record<number, HTMLFormElement> = {};
+
   let color = "#ffffff"; // initial color
   let placedBy = "Anonymous"; // initial editor
 
@@ -167,8 +169,9 @@ h-screen"
 
   <div class="flex flex-col gap-20">
     <div id="grid" class="grid" style="--width: {width}; --height: {height};">
-      {#each data.art.pixels as pixel}
+      {#each data.art.pixels as pixel, i}
         <form
+          bind:this={forms[i]}
           use:enhance={({ cancel }) => {
             if (pixel.color === color) {
               cancel();
@@ -181,17 +184,6 @@ h-screen"
           }}
           action="?/edit"
           method="post"
-          on:mouseenter={(e) => {
-            // check if mouse is down
-            if (e.buttons !== 1) {
-              return;
-            }
-            if (pixel.color === color) {
-              return;
-            }
-            // submit this form
-            e.target?.dispatchEvent(new Event("submit"));
-          }}
         >
           <input type="hidden" name="x" bind:value={pixel.x} />
           <input type="hidden" name="y" bind:value={pixel.y} />
@@ -201,7 +193,27 @@ h-screen"
             <input type="hidden" name="id" bind:value={pixel.id} />
           {/if}
 
-          <button class="pixel" style="background-color: {pixel.color}"
+          <button
+            on:mousedown={(e) => {
+              if (pixel.color === color) {
+                return;
+              }
+              // submit this form
+              forms[i].dispatchEvent(new Event("submit"));
+            }}
+            on:mousemove={(e) => {
+              console.log("yo");
+              if (e.buttons !== 1) {
+                return;
+              }
+              if (pixel.color === color) {
+                return;
+              }
+              // submit this form
+              forms[i].dispatchEvent(new Event("submit"));
+            }}
+            class="pixel"
+            style="background-color: {pixel.color}"
           ></button>
         </form>
       {/each}
