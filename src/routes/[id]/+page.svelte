@@ -4,7 +4,6 @@
   import { invalidateAll } from "$app/navigation";
   import { onDestroy } from "svelte";
   import type { PageData } from "./$types";
-  import { popup } from "@skeletonlabs/skeleton";
 
   export let data: PageData;
 
@@ -17,7 +16,7 @@
   let placedBy = "Anonymous"; // initial editor
 
   if (browser) {
-    let timer = setInterval(invalidateAll, 100);
+    let timer = setInterval(invalidateAll, 2000);
     onDestroy(() => clearInterval(timer));
   }
 </script>
