@@ -1,0 +1,30 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Art {
+  id        Int     @id @default(autoincrement())
+  name      String
+  width     Int
+  height    Int
+  pixels    Pixel[]
+  createdBy String
+}
+
+model Pixel {
+  id       Int    @id @default(autoincrement())
+  art      Art    @relation(fields: [artId], references: [id])
+  artId    Int
+  x        Int
+  y        Int
+  color    String
+  placedBy String
+}
