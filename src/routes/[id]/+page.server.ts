@@ -12,26 +12,7 @@ export const load = (async ({ params }) => {
     throw error(404, { message: "Art not found" });
   }
 
-  let pixels = [];
-
-  for (let x = 0; x < art.width; x++) {
-    for (let y = 0; y < art.height; y++) {
-      let pixel = art.pixels.find((p) => p.x === x && p.y === y);
-      if (pixel) {
-        pixels.push(pixel);
-      } else {
-        pixels.push({
-          x,
-          y,
-          color: "#ffffff",
-          placedBy: "none",
-          artId: art.id,
-        });
-      }
-    }
-  }
-
-  return { art: { ...art, pixels } };
+  return { art };
 }) satisfies PageServerLoad;
 
 export const actions: Actions = {

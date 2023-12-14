@@ -21,7 +21,7 @@ export const actions: Actions = {
     }
 
     let width = Number(w);
-    let height  = Number(h);
+    let height = Number(h);
 
     let art = await prisma.art.create({
       data: {
@@ -29,6 +29,14 @@ export const actions: Actions = {
         width,
         height,
         createdBy,
+        pixels: {
+          create: Array.from({ length: width * height }, (_, i) => ({
+            x: i % width,
+            y: Math.floor(i / width),
+            color: "#ffffff",
+            placedBy: "none",
+          })),
+        },
       },
     });
     return { art };
