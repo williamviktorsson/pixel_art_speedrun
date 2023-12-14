@@ -14,17 +14,10 @@ export const load = (async ({ params }) => {
 
   let pixels = [];
 
-  // Sort the pixels array by x and y
-  art.pixels.sort((a, b) => a.x - b.x || a.y - b.y);
-
   for (let x = 0; x < art.width; x++) {
     for (let y = 0; y < art.height; y++) {
-      // Use shift to get the first element in the array
-      let pixel = art.pixels[0];
-
-      if (pixel && pixel.x === x && pixel.y === y) {
-        // Remove the first element from the array
-        art.pixels.shift();
+      let pixel = art.pixels.find((p) => p.x === x && p.y === y);
+      if (pixel) {
         pixels.push(pixel);
       } else {
         pixels.push({
