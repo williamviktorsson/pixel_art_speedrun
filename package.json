@@ -32,5 +32,8 @@
   "dependencies": {
     "@floating-ui/dom": "^1.5.3",
     "@prisma/client": "^5.7.0"
+  },
+  "engines": {
+    "node": ">=18"
   }
 }
