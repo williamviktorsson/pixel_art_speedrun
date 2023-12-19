@@ -4,6 +4,7 @@
   import { invalidateAll } from "$app/navigation";
   import { onDestroy } from "svelte";
   import type { PageData } from "./$types";
+  import { page } from "$app/stores";
 
   export let data: PageData;
 
@@ -18,8 +19,22 @@
   let placedBy = "Anonymous"; // initial editor
 
   if (browser) {
-    let timer = setInterval(invalidateAll, 2000);
-    onDestroy(() => clearInterval(timer));
+    let es: EventSource;
+
+    es = new EventSource(`/${$page.params.id}`);
+    es.onmessage = (event) => {
+      const pixel = JSON.parse(event.data);
+
+      /* add the new message */
+      if (pixel) {
+        const index = pixel.y * width + pixel.x;
+        data.art.pixels[index] = pixel;
+      }
+    };
+
+    onDestroy(() => {
+      es.close();
+    });
   }
 </script>
 
@@ -176,8 +191,12 @@ h-screen"
             if (pixel.color === color) {
               cancel();
             }
+            let temp = pixel.color;
             pixel.color = color;
             return ({ result, update }) => {
+              if (result.type === "error") {
+                pixel.color = temp;
+              }
               // do nothing to prevent each form submit to trigger invalidateAll.
               // invalidateAll is triggered manually on interval
             };
@@ -202,7 +221,6 @@ h-screen"
               forms[i].dispatchEvent(new Event("submit"));
             }}
             on:mousemove={(e) => {
-              console.log("yo");
               if (e.buttons !== 1) {
                 return;
               }

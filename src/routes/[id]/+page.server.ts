@@ -1,6 +1,7 @@
 import { prisma } from "$lib";
 import { error, fail } from "@sveltejs/kit";
 import type { Actions, PageServerLoad } from "./$types";
+import { _streams } from "./+server";
 
 export const load = (async ({ params }) => {
   let art = await prisma.art.findUnique({
@@ -16,7 +17,7 @@ export const load = (async ({ params }) => {
 }) satisfies PageServerLoad;
 
 export const actions: Actions = {
-  edit: async ({ request, cookies, params }) => {
+  edit: async ({ request, params }) => {
     try {
       let art = await prisma.art.findUnique({
         where: { id: Number(params.id) },
@@ -38,8 +39,17 @@ export const actions: Actions = {
         throw error(400, { message: "Missing required fields" });
       }
 
+      let pixel: {
+        id: number;
+        artId: number;
+        x: number;
+        y: number;
+        color: string;
+        placedBy: string;
+      };
+
       if (id) {
-        await prisma.pixel.update({
+        pixel = await prisma.pixel.update({
           data: {
             color,
             placedBy,
@@ -49,7 +59,7 @@ export const actions: Actions = {
           },
         });
       } else {
-        await prisma.pixel.create({
+        pixel = await prisma.pixel.create({
           data: {
             x: Number(x),
             y: Number(y),
@@ -58,6 +68,20 @@ export const actions: Actions = {
             artId: art.id,
           },
         });
+      }
+
+      const encoder = new TextEncoder();
+      const encoded = encoder.encode("data: " + JSON.stringify(pixel) + "\n\n");
+      if (!_streams[art!.id]) {
+        _streams[art!.id] = { controllers: [] };
+      }
+
+      for (let controller of _streams[art.id].controllers) {
+        try {
+          controller.enqueue(encoded);
+        } catch (e) {
+          console.log(e);
+        }
       }
     } catch (e) {
       console.log(e);
