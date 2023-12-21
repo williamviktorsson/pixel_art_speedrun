@@ -28,7 +28,15 @@
       /* add the new message */
       if (pixel) {
         const index = pixel.y * width + pixel.x;
-        data.art.pixels[index] = pixel;
+        data.art.pixels[index] = { ...pixel, glow: true };
+        setTimeout(() => {
+          // remove the glow property
+          try {
+            delete (data.art.pixels[index] as any).glow;
+          } catch (e) {
+            // ignore
+          }
+        }, 1000);
       }
     };
 
@@ -192,7 +200,7 @@ h-screen"
               cancel();
             }
             let temp = pixel.color;
-            pixel.color = color;
+
             return ({ result, update }) => {
               if (result.type === "error") {
                 pixel.color = temp;
@@ -231,6 +239,7 @@ h-screen"
               forms[i].dispatchEvent(new Event("submit"));
             }}
             class="pixel"
+            class:glow={"glow" in pixel}
             style="background-color: {pixel.color}"
           ></button>
         </form>
@@ -252,10 +261,24 @@ h-screen"
     display: flex;
   }
 
+  .glow {
+    animation: glow 1s ease-in-out 1 forwards;
+  }
+
+  @keyframes glow {
+    from {
+      box-shadow: 0 0 0px 0px rgba(255, 255, 255, 0.5);
+    }
+    to {
+      box-shadow: 0 0 10px 10px rgba(255, 255, 255, 0);
+    }
+  }
+
   .pixel {
     width: 16px;
     height: 16px;
   }
+  
 
   input {
     color: black;
