@@ -2,7 +2,8 @@
   import { browser } from "$app/environment";
   import { enhance } from "$app/forms";
   import { invalidateAll } from "$app/navigation";
-  import { onDestroy } from "svelte";
+  import { onDestroy, tick } from "svelte";
+  import type { Action } from "svelte/action";
   import type { PageData } from "./$types";
   import { page } from "$app/stores";
 
@@ -18,6 +19,33 @@
   let color = "#ffffff"; // initial color
   let placedBy = "Anonymous"; // initial editor
 
+  let detect_color_change = ((node, color: string) => {
+    return {
+      update(changed_color) {
+        if (changed_color != color) {
+          node.animate(
+            [
+              { border: "4px solid yellow" },
+              { border: "4px solid transparent" },
+            ],
+            {
+              duration: 3000,
+              iterations: 1,
+              easing: "ease-in-out",
+            }
+          );
+          // add class glow and reset animation
+          /*           node.classList.remove("glow");
+          //trigger reflow
+          void node.offsetWidth;
+          node.classList.add("glow"); */
+
+          color = changed_color;
+        }
+      },
+    };
+  }) satisfies Action<HTMLElement, string>;
+
   if (browser) {
     let es: EventSource;
 
@@ -28,15 +56,7 @@
       /* add the new message */
       if (pixel) {
         const index = pixel.y * width + pixel.x;
-        data.art.pixels[index] = { ...pixel, glow: true };
-        setTimeout(() => {
-          // remove the glow property
-          try {
-            delete (data.art.pixels[index] as any).glow;
-          } catch (e) {
-            // ignore
-          }
-        }, 1000);
+        data.art.pixels[index] = pixel;
       }
     };
 
@@ -201,7 +221,7 @@ h-screen"
             }
             let temp = pixel.color;
 
-            return ({ result, update }) => {
+            return ({ result }) => {
               if (result.type === "error") {
                 pixel.color = temp;
               }
@@ -239,7 +259,8 @@ h-screen"
               forms[i].dispatchEvent(new Event("submit"));
             }}
             class="pixel"
-            class:glow={"glow" in pixel}
+            class:glow={false}
+            use:detect_color_change={pixel.color}
             style="background-color: {pixel.color}"
           ></button>
         </form>
@@ -261,24 +282,23 @@ h-screen"
     display: flex;
   }
 
+  .pixel {
+    width: 64px;
+    height: 64px;
+  }
+
   .glow {
-    animation: glow 1s ease-in-out 1 forwards;
+    animation: glow 1s 1 forwards;
   }
 
   @keyframes glow {
-    from {
-      box-shadow: 0 0 0px 0px rgba(255, 255, 255, 0.5);
+    0% {
+      border: 4px solid yellow;
     }
-    to {
-      box-shadow: 0 0 10px 10px rgba(255, 255, 255, 0);
+    100% {
+      border: 4px solid transparent;
     }
   }
-
-  .pixel {
-    width: 16px;
-    height: 16px;
-  }
-  
 
   input {
     color: black;
