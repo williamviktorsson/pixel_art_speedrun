@@ -1,7 +1,6 @@
 <script lang="ts">
   import { browser } from "$app/environment";
   import { enhance } from "$app/forms";
-  import { invalidateAll } from "$app/navigation";
   import { onDestroy, tick } from "svelte";
   import type { Action } from "svelte/action";
   import type { PageData } from "./$types";
@@ -19,32 +18,13 @@
   let color = "#ffffff"; // initial color
   let placedBy = "Anonymous"; // initial editor
 
-  let detect_color_change = ((node, color: string) => {
+  let element_updated: Action<HTMLElement, string> = (node, current_color) => {
     return {
-      update(changed_color) {
-        if (changed_color != color) {
-          node.animate(
-            [
-              { border: "4px solid yellow" },
-              { border: "4px solid transparent" },
-            ],
-            {
-              duration: 3000,
-              iterations: 1,
-              easing: "ease-in-out",
-            }
-          );
-          // add class glow and reset animation
-          /*           node.classList.remove("glow");
-          //trigger reflow
-          void node.offsetWidth;
-          node.classList.add("glow"); */
-
-          color = changed_color;
-        }
+      update: (new_color) => {
+       
       },
     };
-  }) satisfies Action<HTMLElement, string>;
+  };
 
   if (browser) {
     let es: EventSource;
@@ -259,8 +239,7 @@ h-screen"
               forms[i].dispatchEvent(new Event("submit"));
             }}
             class="pixel"
-            class:glow={false}
-            use:detect_color_change={pixel.color}
+            use:element_updated={pixel.color}
             style="background-color: {pixel.color}"
           ></button>
         </form>

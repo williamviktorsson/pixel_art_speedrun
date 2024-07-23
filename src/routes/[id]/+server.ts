@@ -25,10 +25,11 @@ export const GET: RequestHandler = async ({ params }) => {
         if (!_streams[art!.id]) {
           _streams[art!.id] = { controllers: [] };
         }
+        // save controller + userid cookie pair
         _streams[art!.id].controllers.push(controller);
       },
       cancel() {
-        /* remove the stream */
+        /* remove the controller that corresponds to the cookie */ 
       },
     });
 
